@@ -83,11 +83,10 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[subset selection with chance constraints ]{A practical approach to subset selection with chance constraints } % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[Subset selection with chance constraints ]{A practical approach to subset selection with chance constraints } % The short title appears at the bottom of every slide, the full title is only on the title page
 
-\author[Currie \& Monks]{Christine S.M Currie \inst{1} \and Thomas Monks \inst{2}}
-\institute[University of Southampton]{\inst{1} CORMSIS, University of Southampton \and %
-                      \inst{2} NIHR CLAHRC Wessex, UoS / Alan Turing Institute}
+\author[Monks \& Currie]{Thomas Monks \inst{1} \and Christine S.M Currie \inst{2}}
+\institute[University of Southampton]{\inst{1} NIHR CLAHRC Wessex, UoS / Alan Turing Institute \and \inst{2} CORMSIS, University of Southampton  }
 
 
 \date{Winter Simulation Conference 2018}%Date, can be changed to a custom date
@@ -108,8 +107,7 @@
 %----------------------------------------------------------------------------------------
 
 %------------------------------------------------
-\section{Problem description} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
-%------------------------------------------------
+\section{Problem description} %------------------------------------------------
 
 \subsection{Motivation} % A subsection can be created just before a set of slides with a common theme to further break down your presentation into chunks
 
@@ -119,10 +117,10 @@
 \textbf{Aim}: support system experts making complex decisions involving \textbf{multiple objectives} and a \textbf{large number of scenarios} for the system\\
 \textbf{Factors}:
 \begin{itemize}
-\item Some unquantifiable (e.g., political) variables; 
-\item Large, complex, slow-running simulation model; 
-\item Simulation practitioner without a PhD in statistics/simulation; 
-\item Off-the-shelf simulation package; 
+\item Some unquantifiable (e.g., political) variables 
+\item Large, complex, slow-running simulation model 
+\item Simulation practitioner without a PhD in statistics/simulation
+\item Off-the-shelf simulation package 
 \end{itemize}
 \end{frame}
 
@@ -133,10 +131,10 @@
 \textbf{Aim}: support system experts making complex decisions involving \textbf{multiple objectives} and a \textbf{large number of scenarios} for the system\\
 \textbf{Factors}:
 \begin{itemize}
-\item Some unquantifiable (e.g., political) variables;   \textcolor{red}{Find a subset not a single optimum}
-\item Large, complex, slow-running simulation model;  \textcolor{red}{Use variance reduction techniques, e.g., CRN}
-\item Simulation practitioner without a PhD in statistics/simulation; \textcolor{red}{Reduce the need for expert statistical judgment}
-\item Off-the-shelf simulation package;  \textcolor{red}{Difficult to implement fully sequential methods}
+\item Some unquantifiable (e.g., political) variables:   \textcolor{red}{Find a subset not a single optimum}
+\item Large, complex, slow-running simulation model:  \textcolor{red}{Use variance reduction techniques, e.g., CRN}
+\item Simulation practitioner without a PhD in statistics/simulation: \textcolor{red}{Reduce the need for expert statistical judgment}
+\item Off-the-shelf simulation package:  \textcolor{red}{Difficult to implement fully sequential methods}
 \end{itemize}
 \end{frame}
 
@@ -150,20 +148,100 @@
 \begin{block}{Requirements}
 \begin{itemize}
 \item[R1] The choice of options to include in the experimentation and the number of replications to make can only be changed once during the experiment (two-stage method)
-\item[R2]The procedure should not impose any distributional assumptions on the output
+\item[R2]The procedure should not impose any distributional assumptions on the simulation output
 
 \end{itemize}
 \end{block}
 
 \end{frame}
 
+\begin{frame}{Problem Description}
+Assume that we are comparing $k\geq 2$ systems and are primarily interested in minimizing the mean value of a particular output
+\[
+x_{i} = \sum_{j=1}^{n}x_{ij}/n
+\]
+where $i=1, \ldots, k$ but are also interested in $L$ secondary outputs or objectives
+\[
+y_{il} = \sum_{j=1}^{n}Y_{ijl}/n
+\]
+\end{frame}
+\begin{frame}{Subset Selection with Chance Constraints}
+    \textbf{Aim:} Identify a shortlist (subset) of systems ($\mathbf{S}^{*}$) that are all within a \textbf{proportion} $\beta$ of the best system with probability $1-\alpha$
+    
+    \textbf{And} satisfy the chance constraints with a probability $1-\gamma$
+    \vspace{1cm}
+    
+    We restrict the number of systems on the shortlist to $\min \{m,\vert S^{*} \vert \}$ by taking the \textbf{top} $\mathbf{m}$ systems that satisfy the above constraints 
+\end{frame}
 
+\subsection{Previous Work}
+\begin{frame}{Previous Work}
+\begin{enumerate}
+    \item \textbf{Approach:} \cite{Branke:MS2007} suggest three categories: indifference zone, OCBA and Expected Value of Information
+    \item \textbf{Chance constraints} \cite{Hong:IJOC2015} suggest two approaches to dealing with chance constraints: Expectation Constrained Selection and Chance Constrained Selection. 
+    \item \textbf{Subset selection} authors use either OCBA or indifference zone methods to maximize/guarantee the probability of correct selection of the best $m$ of $k$ systems
+\end{enumerate}
+\end{frame}
 %------------------------------------------------
+\section{Methods}
+\subsection{Methods}
+\begin{frame}{Big Picture}
+\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
+
+\column{.5\textwidth} % Left column and width
+\includegraphics[width=1.2\linewidth]{Overall_Process}
+
+\column{.45\textwidth} % Right 
+\begin{itemize}
+\item Method relies on bootstrapping
+\item Set stage 1 parameters so that we are risk averse
+\item Balancing risk of missing a good solution versus including too many in stage 2
+\item Trade off between $n_{1}$ and $n_{2}$
+\end{itemize}
+
+\end{columns}
 
 
+\end{frame}
+\begin{frame}{Non-Parametric Bootstrapping}
+Resampling method used to infer properties for a set of data.
+\includegraphics[width=1.0\linewidth]{Bootstrap_Diagram.jpg}
+\end{frame}
+\begin{frame}{Constraints Bootstrap}
+\textbf{Aim:} Identify systems likely to violate the chance constraints
+\begin{block}{Constraints Bootstrap}
+\begin{enumerate}
+    \item Input a set of bootstrap samples $\mathbf{Y}^{\star (1)}, \mathbf{Y}^{\star (2)}, \ldots, \mathbf{Y}^{\star (B)}$ and for each  calculate $y^{\star (b)}_{l}$, $l=1, \ldots, L$.
+    \item Include systems in the final feasible set $\mathbf{S}_{c}$ if 
+\[
+\frac{1}{B} \sum_{b=1}^{B} \prod_{l=1}^{L} I \left\{ y^{\star (b)}_{l} \geq 0\right\} \geq 1-\gamma,
+\]
+\item Return $\mathbf{S}_{c}$.
+\end{enumerate}
+\end{block}
+\end{frame}
+\begin{frame}{Quality Bootstrap}
+\textbf{Aim:} identify a set of systems with means within a distance $\beta$ of the best system with probability $1-\alpha$
+\begin{block}{Quality Bootstrap}
+\begin{enumerate}
+\item Define a new variable $d_{ij} = x_{j}^{*}-x_{ij}$
+\item Generate $B$ bootstraps of the $d_{ij}$
+\item In each bootstrap sample, identify systems with differences less than $\beta \bar{x}^{*}$, where $\bar{x}^{*}$
 
-
-
+\end{enumerate}
+\end{block}
+\end{frame}
+\begin{frame}{Quality Bootstrap}
+\begin{block}{Quality Bootstrap (Cont'd)}
+\begin{enumerate}\setcounter{enumi}{3}
+\item Identify $\mathbf{S}^{*}$ such that it is the biggest set for which
+\[
+\frac{1}{B} \sum_{b=1}^{B} \prod_{j \in \mathbf{S}_{c}} I\{\vert d^{\star (b)}_{ij} \vert \leq \beta \bar{x}^{*}\} \geq 1 - \alpha.
+\]
+\item Return $\mathbf{S}^{*}$
+\end{enumerate}
+\end{block}
+\end{frame}
 %------------------------------------------------
 \section{Python Implementation}
 %------------------------------------------------
@@ -246,7 +324,7 @@ conda activate bootcomp
 %------------------------------------------------
 
 \section{A practical problem}
-
+\subsection{A practical problem}
 \begin{frame}
 \frametitle{Designing a rehabilitation ward}
 %Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
@@ -331,12 +409,16 @@ conda activate bootcomp
 \frametitle{Further work}
 
 \begin{itemize}
-    \item Comparison with sequential budget allocation algorithms finding top-m systems
-    \item 
+    \item Comparison with sequential budget allocation algorithms finding top-m systems with a \textbf{single} performance measure
+    \begin{itemize}
+        \item Set of 10 normal distributions $N(i,6)$
+        \item Set of 100 normal distributions $Ni/100,6)$
+        \item Law inventory example
+    \end{itemize}
+    \item Comparisons using common random numbers
+    \item Identifying ``good'' values for the parameters in the first stage: $N_{0}, \alpha_{1}, \beta_{1}, \gamma_{1}$
 \end{itemize}
     
- 
-
 
 \end{frame}
 
@@ -346,112 +428,29 @@ conda activate bootcomp
 %------------------------------------------------
 
 
-\begin{frame}
-\frametitle{Blocks of Highlighted Text}
-\begin{block}{Block 1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-\end{block}
-
-\begin{block}{Block 2}
-Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-\end{block}
-
-\begin{block}{Block 3}
-Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-\end{block}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-
-\column{.45\textwidth} % Left column and width
-\textbf{Heading}
-\begin{enumerate}
-\item Statement
-\item Explanation
-\item Example
-\end{enumerate}
-
-\column{.5\textwidth} % Right column and width
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-
-\end{columns}
-\end{frame}
-
-%------------------------------------------------
-\section{Second Section}
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Table}
-\begin{table}
-\begin{tabular}{l l l}
-\toprule
-\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
-\midrule
-Treatment 1 & 0.0003262 & 0.562 \\
-Treatment 2 & 0.0015681 & 0.910 \\
-Treatment 3 & 0.0009271 & 0.296 \\
-\bottomrule
-\end{tabular}
-\caption{Table caption}
-\end{table}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Verbatim}
-\begin{example}[Theorem Slide Code]
-\begin{verbatim}
-\begin{frame}
-\frametitle{Theorem}
-\begin{theorem}[Mass--energy equivalence]
-$E = mc^2$
-\end{theorem}
-\end{frame}\end{verbatim}
-\end{example}
-\end{frame}
-
-
-\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
-\frametitle{Citation}
-An example of the \verb|\cite| command to cite within the presentation:\\~
-
-This statement requires citation \cite{p1}.
-\end{frame}
-
-%------------------------------------------------
 
 \begin{frame}
 \frametitle{References}
 \footnotesize{
 \begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
-\bibitem[Smith, 2012]{p1} John Smith (2012)
-\newblock Title of the publication
-\newblock \emph{Journal Name} 12(3), 45 -- 678.
+\bibitem[Branke et al. 2007]{Branke:MS2007}
+J\"{u}rgen Branke, Stephen E. Chick and Christian Schmidt (2007)
+\newblock Selecting a selection procedure
+\newblock \emph{Management Science} 53, 1916--1932
+
+\bibitem[Hong et al. 2015]{Hong:IJOC2015} 
+L. Jeff Hong, Jun Luo and Barry L. Nelson (2015)
+\newblock Chance constrained selection of the best.
+\newblock \emph{INFORMS Journal on Computing}
+27, 317 -- 334.
+
+
+
 \end{thebibliography}
 }
 \end{frame}
 
 %------------------------------------------------
-
-\begin{frame}
-\Huge{\centerline{The End}}
-\end{frame}
-
 %----------------------------------------------------------------------------------------
 
 \end{document}
